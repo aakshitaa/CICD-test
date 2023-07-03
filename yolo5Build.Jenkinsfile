@@ -24,7 +24,7 @@ pipeline {
             steps {
                 sh '''
                 cd yolo5
-                sudo docker build -t ${REPO_NAME} .
+                docker build -t ${REPO_NAME} .
                 '''
             }
         }
@@ -32,8 +32,8 @@ pipeline {
         stage('Push to ECR') {
             steps {
                 sh '''
-                sudo docker tag ${REPO_NAME} ${ECR_URL}/${REPO_NAME}:0.0.${BUILD_NUMBER}
-                sudo docker push ${ECR_URL}/${REPO_NAME}:0.0.${BUILD_NUMBER}
+                docker tag ${REPO_NAME} ${ECR_URL}/${REPO_NAME}:0.0.${BUILD_NUMBER}
+                docker push ${ECR_URL}/${REPO_NAME}:0.0.${BUILD_NUMBER}
                 '''
             }
         }
