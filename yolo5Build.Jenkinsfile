@@ -41,7 +41,7 @@ pipeline {
 
         stage('Trigger Deploy') {
             steps {
-                build job: 'Yolo5Deploy', wait: false, parameters: [
+                build job: 'Yolo5-deploy', wait: false, parameters: [
                     string(name: 'YOLO5_IMAGE_URL', value: "${ECR_URL}/${REPO_NAME}:0.0.${BUILD_NUMBER}")
                 ]
             }
