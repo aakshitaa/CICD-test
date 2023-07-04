@@ -1,34 +1,19 @@
 from pathlib import Path
-from flask import Flask, render_template, flash, request, redirect, jsonify
+from flask import Flask, render_template, flash, request, redirect
 import os
 from werkzeug.utils import secure_filename
 from detect import run
+from utils import ALLOWED_EXTENSIONS, allowed_file
 import uuid
 import yaml
-import json
 from loguru import logger
-import boto3
-import json
-
-s3_client = boto3.client("s3")
-
-with open('config.json') as f:
-    config = json.load(f)
-
-bucket_name = config['img_bucket']
 
 with open("data/coco128.yaml", "r") as stream:
     names = yaml.safe_load(stream)['names']
 
 logger.info(f'yolo5 is up, supported classes are:\n\n{names}')
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 logger.info(f'supported files are: {ALLOWED_EXTENSIONS}')
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 app = Flask(__name__, static_url_path='')
@@ -49,7 +34,7 @@ def upload_file_api():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         p = Path(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        prediction_id = str(uuid.uuid4())  # e.g. bd65600d-8669-4903-8a14-af88203add38
+        prediction_id = str(uuid.uuid4())   # e.g. bd65600d-8669-4903-8a14-af88203add38
 
         logger.info(f'predicting {prediction_id}/{p}')
 
@@ -67,7 +52,6 @@ def upload_file_api():
         pred_result_path = Path(f'static/data/{prediction_id}/labels/{filename.split(".")[0]}.txt')
 
         # TODO upload client original img (p) and predicted img (pred_result_img) to S3 using boto3
-
         #  reference: https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-uploading-files.html
 
         s3_client.upload_file(str(p), bucket_name, str(p))
